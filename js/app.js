@@ -12,7 +12,7 @@ var initialLocations = [
     ];
 
 /****** VIEW *******/
-// initializing the google maps
+// initializing the google map
 init = function() {
     var mapDiv = document.getElementById('google-map');
 
@@ -26,34 +26,34 @@ init = function() {
     map = new google.maps.Map(mapDiv, mapOptions);
 };
 
+// Load map on page load
+google.maps.event.addDomListener(window, 'load', function() {
+    init();
+});
+
 /****** VIEWMODEL *******/
 var ViewModel = function() {
     var self = this;
     self.locationList = ko.observableArray([]);
 
     // Creates an item for each location and pushes them to observable array
-    self.createLocations = function() {
-        initialLocations.forEach(function(locationItem) {
-            self.locationList.push( new Location(locationItem) );
-            self.setMarkers();
-        });
-    };
+    initialLocations.forEach(function(locationItem){
+        self.locationList.push( new Location(locationItem));
+    });
 
-    self.setMarkers = function(clickedLocation) {
+    self.currentLocation = ko.observable(this.locationList()[0]);
+
+    // Creats markers for each location
+    self.setMarker = function(clickedLocation) {
         var len = self.locationList().length;
-        // Loop through each location in the location list and set a marker
+    // // Loop through each location in the location list and set a marker
         for (var i = 0; i < len; i++) {
             self.locationList()[i].marker().setMap(map);
-            console.log('markers');
+            // will not work with currentLocation
+            // self.currentLocation()[i].marker().setMap(map);
+            console.log('clicked Location');
         };
     };
-
-    // Function to handle clicking on a location in the list
-    self.setLocationClick = function(location) {
-        marker.setVisible(true)
-    };
-
-    self.createLocations();
 };
 
 // setting the Location variable and ko.observables
@@ -72,14 +72,10 @@ var Location = function(data) {
         visible: true
     });
 
-  // Set the marker as a knockout observable
-  this.marker = ko.observable(marker);
+    // Set the marker as a ko observable
+    this.marker = ko.observable(marker);
+    // console.log(marker);
 };
-
-// Load map on page load
-google.maps.event.addDomListener(window, 'load', function() {
-    init();
-});
 
 // Apply bindings
 ko.applyBindings(new ViewModel());
