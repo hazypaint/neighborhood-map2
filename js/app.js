@@ -35,6 +35,8 @@ google.maps.event.addDomListener(window, 'load', function() {
 var ViewModel = function() {
     var self = this;
     self.locationList = ko.observableArray([]);
+    self.places_search_text = ko.observable();
+    self.search = ko.observable('');
 
     // Creates an item for each location and pushes them to observable array
     initialLocations.forEach(function(locationItem){
