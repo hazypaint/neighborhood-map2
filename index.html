@@ -7,14 +7,24 @@
 <body>
     <h3>Choose a location from the list:</h3>
     <ul data-bind="foreach: locationList">
-        <li data-bind="text: name, click: $parent.setLocation"></li>
+        <li data-bind="text: name, click: $parent.setMarker"></li>
     </ul>
-    <div data-bind="with: initialLocations">
-        <div>
-            <h2 data-bind="text: name"></h2>
-            <div style="height: 200px" id="google-map"></div>
 
+    <div data-bind="with: currentLocation">
+        <div>
+            <h2 data-bind="text: name, click: $parent.setMarker"></h2>
+            <div>
+                <h2>Tags:</h2>
+                <ul data-bind="foreach: tags">
+                        <li data-bind="text: $data"></li>
+                </ul>
+            </div>
     </div>
+    <div>
+
+        <div style="height: 200px" id="google-map"></div>
+    </div>
+
     <script 
         src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDHX5DB-7dpBp4wQxZt_tLPUyy4WzD0mec&signed_in=true" ></script>
         <!-- &callback=initialize was at end of script; dismissing it made my code work -->
