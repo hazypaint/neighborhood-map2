@@ -3,13 +3,14 @@
     var map;
 
 // location data
-var initialLocations = [
+initialLocations = [
     {name : "Basler Münster", address: "Rittergasse 3, 4051 Basel", tags: ["sight", "church", "cathedral"], lat: 47.556458, lng: 7.592443},
     {name : "Zoo", address: "Binningerstrasse 40, 4054 Basel", tags: ["animals", "attraction", "family fun"], lat: 47.547405, lng: 7.578807},
     {name : "Muesum of Art",  address: "St. Alban-Graben 16, 4051 Basel", tags: ["art", "museum"], lat: 47.554021, lng: 7.594268},
     {name : "Railway Station", address: "Centralbahnstrasse 10, 4051 Basel", tags: ["getting here", "travel"], lat: 47.547571, lng: 7.589662},
     {name : "St Paul's church", address: "Steinenring 20, 4051 Basel", tags: ["sight", "church", "cathedral"], lat: 47.551786, lng: 7.578393},
     ];
+
 
 /****** VIEW *******/
 // initializing the google map
@@ -34,10 +35,46 @@ google.maps.event.addDomListener(window, 'load', function() {
 /****** VIEWMODEL *******/
 var ViewModel = function() {
     var self = this;
+    var infowindow = new google.maps.InfoWindow({
+        content: '<div><h4 id="brewery-name"></h4><p id="brewery-address"></p></div>'
+      });
     self.locationList = ko.observableArray([]);
-    self.places_search_text = ko.observable();
+    // self.locationList = ko.observable();
+    self.filter = ko.observable('');
     self.search = ko.observable('');
 
+    // self.filteredLocations = ko.computed(function() {
+    //     var filter = self.places_search_text().toLowerCase();
+    //     var output = null;
+
+    //     output = ko.utils.arrayFilter(self.locationList(), filterer());
+
+    //     return output;
+
+    //     function filterer(location) {
+    //         var pass = false;
+    //         location.keywords.forEach(function(name) {
+    //             if (keyword.toLowerCase().indexOf(filter) > 0) {
+    //                 pass = true;
+    //             }
+    //         });
+    //         return pass;
+    //     }
+    // });
+    // changes text input to lower case
+    // self.searchText = ko.computed(function() {
+    //     return self.places_search_text().toLowerCase();
+    // }, self);
+
+    // self.filter = function() {
+    //     if (self.searchText == 'h') {
+    //         console.log('true');
+    //     }
+    //     else {console.log('false');}
+    // }
+    // self.filter();
+
+    
     // Creates an item for each location and pushes them to observable array
     initialLocations.forEach(function(locationItem){
         self.locationList.push( new Location(locationItem));
@@ -45,16 +82,20 @@ var ViewModel = function() {
 
     self.currentLocation = ko.observable(this.locationList()[0]);
 
-    // Creats markers for each location
+    // Creats markers for each location and sets them on map on click event on name
     self.setMarker = function(clickedLocation) {
-        var len = self.locationList().length;
-    // // Loop through each location in the location list and set a marker
-        for (var i = 0; i < len; i++) {
-            self.locationList()[i].marker().setMap(map);
-            // will not work with currentLocation
-            // self.currentLocation()[i].marker().setMap(map);
-            console.log('clicked Location');
-        };
+        clickedLocation.marker().setMap(map);
+    };
+
+    self.markerClick = function(location) {
+    var contentString = '<div><h4 id="brewery-name">' + initialLocations.name() + '</h4>' +
+                      '<h5 id="brewery-address">' + initialLocations.address() + '</h5>' +
+                      '</div>';
+        infoWindow.setContent(contentString);
+
+        infowindow.open(map, initialLocations.marker);
+        console.log('window');
+      
     };
 };
 
@@ -65,6 +106,7 @@ var Location = function(data) {
     this.lat = ko.observable(data.lat);
     this.lng = ko.observable(data.lng);
     this.tags = ko.observableArray(data.tags);
+
 
     // Marker for location
     var marker = new google.maps.Marker({
