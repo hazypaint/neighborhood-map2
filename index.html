@@ -6,23 +6,18 @@
 </head>
 <body>
     <h3>Choose a location from the list:</h3>
-    <input id="#places_search_text" placeholder=" Search for places here..." type="search" data-bind="textInput: filter, event: {keyup: search}" autocomplete="off"> 
+    <input id="s-input" class="controls" type="search" data-bind="textInput: query, valueUpdate: 'keyup'"></input>
+    <div id="listbx">
 
-    <ul data-bind="foreach: locationList">
+    <ul data-bind="foreach: search()">
         <li data-bind="text: name, click: $parent.setMarker"></li>
     </ul>
-
-    <div data-bind="with: currentLocation">
-        <div>
-            <h2 data-bind="text: name, click: $parent.setMarker"></h2>
-            <div>
-                <h2>Tags:</h2>
-                <ul data-bind="foreach: tags">
-                        <li data-bind="text: $data"></li>
-                </ul>
-            </div>
-    </div>
-
+<!--         <div>
+            <h2>Tags:</h2>
+            <ul data-bind="foreach: tags">
+                <li data-bind="$data "></li>
+            </ul>
+        </div> -->
         <div style="height: 200px" id="google-map"></div>
     </div>
     <script src="js/lib/jQuery.min.js"></script>
