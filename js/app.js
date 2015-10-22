@@ -12,8 +12,31 @@ var initialLocations = [
     ];
     
     // log statement shows that markers are added
-    console.log(initialLocations);
+    // console.log(initialLocations);
+var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
+      '<div id="bodyContent">'+
+      '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
+      'sandstone rock formation in the southern part of the '+
+      'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
+      'south west of the nearest large town, Alice Springs; 450&#160;km '+
+      '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
+      'features of the Uluru - Kata Tjuta National Park. Uluru is '+
+      'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
+      'Aboriginal people of the area. It has many springs, waterholes, '+
+      'rock caves and ancient paintings. Uluru is listed as a World '+
+      'Heritage Site.</p>'+
+      '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+      'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+      '(last visited June 22, 2009).</p>'+
+      '</div>'+
+      '</div>';
 
+var infowindow = new google.maps.InfoWindow({
+    content: contentString
+});
 
 
 /****** VIEW *******/
@@ -55,10 +78,10 @@ var ViewModel = function() {
              visible: true,
              map: map
         });
+        initialLocations[i].marker.addListener('click', function() {
+            infowindow.open(map, initialLocations.marker);
+        });
     } 
-
-    // To add the marker to the map, call setMap();
-    // initialLocations.marker.setMap(map); 
 
     // creating an array for the bullet points to display
     self.bulletPoints = ko.observableArray(initialLocations);
@@ -68,11 +91,13 @@ var ViewModel = function() {
 
     // creating a computed observable to find matches between user input and bullet point list 
     self.search = ko.computed(function(){
-        return ko.utils.arrayFilter(self.bulletPoints(), function(bulletPoint){
-            initialLocations[0].marker.setVisible(true);
-            // console.log(self.bulletPoints().marker);   
-            return bulletPoint.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;  
-
+        return ko.utils.arrayFilter(self.bulletPoints(), function(bulletPoint){            
+            for (var i = 0; i < self.bulletPoints.length; i++) {
+                // console.log(self.bulletPoints());
+                self.bulletPoints()[1].marker.setVisible(false);
+            } 
+            return bulletPoint.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
+            console.log('here2');
             });
             
         });
