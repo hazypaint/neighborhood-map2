@@ -95,13 +95,17 @@ var ViewModel = function() {
 
     // creating a computed observable to find matches between user input and bullet point list 
     self.search = ko.computed(function(){
+
         return ko.utils.arrayFilter(self.bulletPoints(), function(bulletPoint){            
-        // console.log(bulletPoint.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0); // true/false
-                 
+            var LC = bulletPoint.name.toLowerCase();
         // not sure how to connect the correct marker to the list
-            if (bulletPoint.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0) {
+            if (LC.indexOf(self.query().toLowerCase()) >= 0) {
                 bulletPoint.marker.setVisible(true);    // this should set the matching marker to visible
-                return bulletPoint.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0; // and return the matching list item
+                return LC.indexOf(self.query().toLowerCase()) >= 0; // and return the matching list item
+            }
+            else {
+                bulletPoint.marker.setVisible(false); 
+                return LC.indexOf(self.query().toLowerCase()) >= 0; // and return the matching list item
             }
         });   
     });
