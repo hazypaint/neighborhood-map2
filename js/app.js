@@ -4,19 +4,19 @@ var map;
 
 // location data
 var initialLocations = [
-{name : "Basler Münster", address: "Rittergasse 3, 4051 Basel", tags: ["church", "cathedral"], lat: 47.556458, lng: 7.592443, marker: "", contentString: ""},
-{name : "Zoo", address: "Binningerstrasse 40, 4054 Basel", tags: ["animals", "attraction", "family fun"], lat: 47.547405, lng: 7.578807, marker: "", contentString: ""},
-{name : "Muesum of Art",  address: "St. Alban-Graben 16, 4051 Basel", tags: ["art", "museum"], lat: 47.554021, lng: 7.594268, marker: "", contentString: ""},
-{name : "Railway Station", address: "Centralbahnstrasse 10, 4051 Basel", tags: ["getting here", "travel"], lat: 47.547571, lng: 7.589662, marker: "", contentString: ""},
-{name : "St Paul's church", address: "Steinenring 20, 4051 Basel", tags: ["church", "cathedral"], lat: 47.551786, lng: 7.578393, marker: "", contentString: ""},
-{name : "Museum Tinguely", address: "Paul Sacher-Anlage 2, 4002 Basel", tags: ["art", "museum"], lat: 47.559101, lng: 7.612236, marker: "", contentString: ""},
-{name : "Theatre Basel", address: "Elisabethenstrasse 16, 4051 Basel", tags: ["art", "theatre", "shows"], lat: 47.553306, lng: 7.590082, marker: "", contentString: ""},
-{name : "Town Hall", address: "Altstadt Grossbasel, 4051 Basel", tags: ["politics"], lat: 47.558168, lng: 7.587952, marker: "", contentString: ""},
-{name : "Contemporary art gallery", address: "Steinenberg 7, 4051 Basel", tags: ["art", "gallery"], lat: 47.553634, lng: 7.591093, marker: "", contentString: ""},
+{name : "Basler Münster", address: "Rittergasse 3, 4051 Basel", tags: ["church", "cathedral"], lat: 47.556458, lng: 7.592443, marker: ""},
+{name : "Zoo", address: "Binningerstrasse 40, 4054 Basel", tags: ["animals", "attraction", "family fun"], lat: 47.547405, lng: 7.578807, marker: ""},
+{name : "Muesum of Art",  address: "St. Alban-Graben 16, 4051 Basel", tags: ["art", "museum"], lat: 47.554021, lng: 7.594268, marker: ""},
+{name : "Railway Station", address: "Centralbahnstrasse 10, 4051 Basel", tags: ["getting here", "travel"], lat: 47.547571, lng: 7.589662, marker: ""},
+{name : "St Paul's church", address: "Steinenring 20, 4051 Basel", tags: ["church", "cathedral"], lat: 47.551786, lng: 7.578393, marker: ""},
+{name : "Museum Tinguely", address: "Paul Sacher-Anlage 2, 4002 Basel", tags: ["art", "museum"], lat: 47.559101, lng: 7.612236, marker: ""},
+{name : "Theatre Basel", address: "Elisabethenstrasse 16, 4051 Basel", tags: ["art", "theatre", "shows"], lat: 47.553306, lng: 7.590082, marker: ""},
+{name : "Town Hall", address: "Altstadt Grossbasel, 4051 Basel", tags: ["politics"], lat: 47.558168, lng: 7.587952, marker: ""},
+{name : "Contemporary art gallery", address: "Steinenberg 7, 4051 Basel", tags: ["art", "gallery"], lat: 47.553634, lng: 7.591093, marker: ""},
 ];
 
 // shows the objects including marker and contentString
-// console.log(initialLocations[0]);
+// console.log(initialLocations[0].marker);
 
 /****** VIEW *******/
 // initializing the google map
@@ -34,37 +34,14 @@ init = function() {
 
   map = new google.maps.Map(mapDiv, mapOptions);
 
-  // creating a content string for each infoWindow
-  for (var i = 0; i < initialLocations.length; i++) {
-    initialLocations[i].contentString = '<div id="content">'+
-    '<div id="siteNotice">'+
-    '</div>'+
-    '<h1 id="firstHeading" class="firstHeading">' + initialLocations[i].name + '</h1>'+
-    '<div id="bodyContent">'+
-    '<p>The sight <b>' + initialLocations[i].name + '</b> is located at <b>' + initialLocations[i].address + '</b></p>'+
-    '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-    'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-    '</p>'+
-    '</div>'+
-    '</div>';
-  }
-
   // did not work since marker is still empty --> bug fix: moved google maps script into header
   for (var i = 0; i < initialLocations.length; i++) {
     // setting the markers on the map
     initialLocations[i].marker.setMap(map); 
-
-    // creating an infoWindow for each location
-    infoWindow = new google.maps.InfoWindow({
-      content: initialLocations[i].contentString
-    });
-    console.log(infoWindow.content);
-
-    // adding the event listener for each window
-    google.maps.event.addListener(initialLocations[i].marker, 'click', function() {
-      infoWindow.open(map, initialLocations.marker);
-    }, self);
   }
+
+  // creating one infoWindow 
+  infowindow = new google.maps.InfoWindow();
 };
 
 // Load map on page load
@@ -75,9 +52,12 @@ google.maps.event.addDomListener(window, 'load', function() {
 /****** VIEWMODEL *******/
 var ViewModel = function() {
   var self = this;  // = ViewModel{}
+  var new_content;
+  var image = 'img/marker-icon.png';
 
   // creating an array for the bullet points to display
   self.bulletPoints = ko.observableArray(initialLocations); 
+  // console.log(self.bulletPoints().name);
 
   // creating markers for each bulletPoint
   for (var i = 0; i < self.bulletPoints().length; i++) {
@@ -85,9 +65,34 @@ var ViewModel = function() {
       position: new google.maps.LatLng(self.bulletPoints()[i].lat, self.bulletPoints()[i].lng),
       title: self.bulletPoints()[i].name,
       visible: false,
-      map: map
-   });
-  };
+      map: map,
+      icon: image
+     });
+    
+    google.maps.event.addListener(self.bulletPoints()[i].marker, 'click', function() {
+      for (var i = 0; i < self.bulletPoints().length; i++) {
+        infowindow.setContent(self.bulletPoints()[i].name);
+        infowindow.open(map, this);
+      }
+    });
+
+  }
+  
+
+  // for (var i = 0; i < self.bulletPoints().length; i++) {
+    // var contentString = '<div id="content">'+
+    // '<div id="siteNotice">'+
+    // '</div>'+
+    // '<h1 id="firstHeading" class="firstHeading">' + self.bulletPoints()[i].name + '</h1>'+
+    // '<div id="bodyContent">'+
+    // '<p>The sight <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
+    // '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+    // 'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+    // '</p>'+
+    // '</div>'+
+    // '</div>';
+    // console.log(new_Content);
+  // }
 
   // declaring the user input as an observable
   self.query = ko.observable('');
