@@ -46,6 +46,7 @@ google.maps.event.addDomListener(window, 'load', function() {
 });
 
 /****** VIEWMODEL *******/
+
 var ViewModel = function() {
   var self = this;  // = ViewModel{}
   var image = 'img/marker-icon.png';
@@ -55,6 +56,7 @@ var ViewModel = function() {
 
   // creates a marker for each bulletPoint
   for (var i = 0; i < self.bulletPoints().length; i++) {
+    // creates a marker for each bulletPoint
     self.bulletPoints()[i].marker = new google.maps.Marker({
       position: new google.maps.LatLng(self.bulletPoints()[i].lat, self.bulletPoints()[i].lng),
       title: self.bulletPoints()[i].name,
@@ -62,31 +64,25 @@ var ViewModel = function() {
       map: map,
       icon: image
      });
-    
-    // creates a content string for each bulletPoint
-    self.bulletPoints()[i].contentString = '<div id="content">'+
-    '<div id="siteNotice">'+
-    '</div>'+
-    '<h1 id="firstHeading" class="firstHeading">' + self.bulletPoints()[i].name + '</h1>'+
-    '<div id="bodyContent">'+
-    '<p>The sight <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
-    '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-    'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-    '</p>'+
-    '</div>'+
-    '</div>';
-    // console.log(self.bulletPoints()[i].contentString);
-  }
-  
-  // event listener for the infoWindow to open on click
+  };
+
+  // infoWindow creatiion and event listener 
   for (var i = 0; i < self.bulletPoints().length; i++) {
-    google.maps.event.addListener(self.bulletPoints()[i].marker, 'click', function() {
-      for (var i = 0; i < self.bulletPoints().length; i++) {
-        infowindow.setContent(self.bulletPoints()[i].contentString);
-        infowindow.open(map, this);
-      }
-  });
-  }
+    // creates a content string for each bulletPoint
+
+    var newContent = self.bulletPoints()[i].name;
+    var newMarker = self.bulletPoints()[i].marker;
+    console.log(newMarker);
+    console.log(newContent);
+   
+    // event listener for the infoWindow to open on click
+    google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
+        return function() {
+          infowindow.setContent(contentCopy);
+          infowindow.open(map, this);
+        };
+      })(newContent));
+    };
 
   // declaring the user input as an observable
   self.query = ko.observable('');
@@ -109,3 +105,18 @@ var ViewModel = function() {
 
 // Apply bindings
 ko.applyBindings(new ViewModel());
+
+
+// code for infowindow to be added later
+    // contentString = '<div id="content">'+
+    //   '<div id="siteNotice">'+
+    //   '</div>'+
+    //   '<h1 id="firstHeading" class="firstHeading">' + self.bulletPoints()[i].name + '</h1>'+
+    //   '<div id="bodyContent">'+
+    //   '<p>The sight <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
+    //   // API input will go here at some point
+    //   // '<p>Attribution: <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+    //   // 'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+    //   '</p>'+
+    //   '</div>'+
+    //   '</div>';
