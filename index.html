@@ -19,7 +19,7 @@
                 <div class="col-md-10 text-left text-uppercase">
                     <h1 class="text-thin title-size">Basel Guide</h1>
                     <p>Learn about the Basel area</p>
-                </div>
+                </div>  
                 <div class="col-md-2">
                     <img class="img-responsive title-logo" src="img/Swatch-Kantons-Wappen.png" alt="wappen">
                 </div>
@@ -37,7 +37,7 @@
                 <input id="s-input" class="controls" placeholder="Search..." type="search" data-bind="textInput: query, valueUpdate: 'keyup'"></input>
                 <div id="listbx">
                     <ul data-bind="foreach: search()">
-                        <li data-bind="text: name, click: ViewModel.setMarker"></li>
+                        <li data-bind="text: name, click: $parent.listClick"></li>
                     </ul>
                 </div>
             </div>
@@ -45,9 +45,26 @@
                 <div style="height: 400px" id="google-map"></div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p><p/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-5 text-background">
+                <h4>Wikipedia Information about your chosen sight</h4>
+                <ul id="wikipedia-links">We will show you information about Basel's sights</ul>
+            </div>
+            <div class="col-md-2">
+                <p></p>
+            </div>
+            <div class="col-md-5 text-background">
+                <h4 id="wikipedia">Google Stree View of your chosen sight</h4>
+                <li></li>
+            </div>
+        </div>
 
         <script src="js/lib/jQuery.min.js"></script>
-
         <script src="js/lib/knockout-3.3.0.js"></script>
         <script src="js/app.js"></script>
     </div>

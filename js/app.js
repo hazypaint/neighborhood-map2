@@ -126,7 +126,14 @@ var ViewModel = function() {
       }
     });   
   });
-    
+
+  // causes info marker to act as if it's been clicked when the corresponding list item is clicked
+  self.listClick = function(bulletPoint) {
+    var listMarker = bulletPoint.marker;
+    console.log(bulletPoint.marker);
+    google.maps.event.trigger(listMarker, "click");
+  };  
+
   // wiki link created with Wikipedia API sandbox
   var requestWiki = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ initialLocations.name + '&format=json&callback=wikiCallback'
     // console.log(requestWiki);
