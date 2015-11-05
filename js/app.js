@@ -72,6 +72,59 @@ var ViewModel = function() {
      });
   };
 
+  // load function for AJAX request -- executed on click event
+  var loadData = function (bulletPoint){
+    // wikipedia link created with wiki sandbox
+    var requestWiki  = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ bulletPoint.title + '&format=json&callback=wikiCallback';
+    // NYTimes link for request
+    var requestNYT = "http://api.nytimes.com/svc/search/v2/articlesearch.json?q=" + bulletPoint.title + "&page=0&max=5&api-key=bec2df7e772a904f941747a02d2bc3e7:4:72782796";
+
+    // time out error info in case wikipedia can't be loaded
+    var wikiRequestTimeout = setTimeout(function(){
+        $wikiElem.text("Wikipedia articles could not be loaded.");
+    }, 8000);
+
+    // Wikipedia AJAX request
+    $.ajax({
+      type: "GET",
+      url: requestWiki,
+      dataType: "jsonp",
+      success: function (response) {
+        var wikiArticles = response[1];
+
+        for (var i = 0 ; i < wikiArticles.length ; i++ ) {
+            var site = wikiArticles[i];
+            var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
+            $wikiElem.append("<li><a href='" + url + "'target='_blank'>" + site + "</a></li>" );
+            }
+        clearTimeout(wikiRequestTimeout);
+      },
+      error: function (e) {
+        console.log('error');
+          $wikiElem.text("Wikipedia articles could not be loaded.");
+      }
+    });
+    
+    // NYTimes AJAX request
+    $.getJSON(requestNYT)
+      .done ( function (data) {
+        // $nytHeaderElem.text("New York Times articles about: " + cityValue);
+        articles = data.response.docs;
+
+        //runs through each article and provides the requested data from each
+        for (var i = 0 ; i < articles.length ; i++ ) {
+            var headlineAndLink = "<a href='" + articles[i].web_url + "'target='_blank''>" + articles[i].headline.main;
+            var snippet = "<p>" + articles[i].snippet + "</p>" ;
+            $nytElem.append("<li class='article'>" + headlineAndLink  + "</a>" + snippet + "</li>" );
+            };
+      })
+
+      .fail ( function (e) {
+          $nytElem.text("New York Times article could not be loaded.");
+      });
+    return false;
+  };
+
   // setting the content for the infoWindow and event listener for markers and list items
   for (var i = 0; i < self.bulletPoints().length; i++) {
 
@@ -83,7 +136,7 @@ var ViewModel = function() {
       '<div id="bodyContent">'+
       '<p>The <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
       '<h5>Wikipedia Articles:</h5>' + 
-      // needs fix: should update wikipedia link 
+// needs fix: should update wikipedia link 
       '<ul id="wikipedia-links">xx</ul>' +
       '<h5>Foursquare rating:</h5>' + 
       '</p>'+
@@ -121,58 +174,7 @@ var ViewModel = function() {
     })(newMarker));
   }
     
-  var loadData = function (bulletPoint){
-    // wikipedia link created with wiki sandbox
-    var requestWiki  = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ bulletPoint.title + '&format=json&callback=wikiCallback';
-    // NYTimes link for request
-    var requestNYT = "http://api.nytimes.com/svc/search/v2/articlesearch.json?q=" + bulletPoint.title + "&api-key=bec2df7e772a904f941747a02d2bc3e7:4:72782796";
 
-    // time out error info in case wikipedia can't be loaded
-    var wikiRequestTimeout = setTimeout(function(){
-        $wikiElem.text("Wikipedia articles could not be loaded.");
-    }, 8000);
-
-    // Wikipedia AJAX request
-    $.ajax({
-      type: "GET",
-      url: requestWiki,
-      dataType: "jsonp",
-      success: function (response) {
-        var wikiArticles = response[1];
-
-        for (var i = 0 ; i < wikiArticles.length ; i++ ) {
-            var site = wikiArticles[i];
-            var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
-            $wikiElem.append("<li><a href='" + url + "'target='_blank'>" + site + "</a></li>" );
-            }
-        clearTimeout(wikiRequestTimeout);
-      },
-      error: function (e) {
-        console.log('error');
-          $wikiElem.text("Wikipedia articles could not be loaded.");
-      }
-    });
-    
-
-    // NYTimes AJAX request
-    $.getJSON(requestNYT)
-      .done ( function (data) {
-        // $nytHeaderElem.text("New York Times articles about: " + cityValue);
-        articles = data.response.docs;
-
-        //runs through each article and provides the requested data from each
-        for (var i = 0 ; i < articles.length ; i++ ) {
-            var headlineAndLink = "<a href='" + articles[i].web_url + "'target='_blank''>" + articles[i].headline.main;
-            var snippet = "<p>" + articles[i].snippet + "</p>" ;
-            $nytElem.append("<li class='article'>" + headlineAndLink  + "</a>" + snippet + "</li>" );
-            };
-      })
-
-      .fail ( function (e) {
-          $nytElem.text("New York Times article could not be loaded.");
-      });
-    return false;
-  };
   
   // declaring the user input as an observable
   self.query = ko.observable('');
