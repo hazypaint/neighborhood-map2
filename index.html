@@ -34,10 +34,10 @@
         <div class="row">
             <div class="col-md-4 text-background">
                 <h3>Choose a point of interest from the list:</h3>
-                <input id="s-input" class="controls" placeholder="Search..." type="search" data-bind="textInput: query, valueUpdate: 'keyup'"></input>
+                <input id="s-input" class="controls" placeholder="Search places from the list below" type="search" data-bind="textInput: query, valueUpdate: 'keyup'"></input>
                 <div id="listbx">
                     <ul data-bind="foreach: search()">
-                        <li data-bind="text: name, click: $parent.listClick"></li>
+                        <li id="listmarker" data-bind="text: name, click: $parent.listClick"></li>
                     </ul>
                 </div>
             </div>
@@ -52,15 +52,16 @@
         </div>
         <div class="row">
             <div class="col-md-5 text-background">
-                <h4>Wikipedia Information about your chosen sight</h4>
-                <ul id="wikipedia-links">We will show you information about Basel's sights</ul>
+                <h4>Wikipedia Information</h4>
+                <ul id="wikipedia-links">Click a marker or a place from the list to see more information</ul>
             </div>
             <div class="col-md-2">
                 <p></p>
             </div>
-            <div class="col-md-5 text-background">
-                <h4 id="wikipedia">Google Stree View of your chosen sight</h4>
-                <li></li>
+            <div class="col-md-5 text-background" data-bind="with: bulletPoints">
+                <h4>NYT articles on your chosen sight</h4>
+                <ul id="nytimes-articles" class="article-list">Click a marker or a place from the list to see articles from the New York Times</ul>
+                
             </div>
         </div>
 
