@@ -19,8 +19,8 @@ var initialLocations = [
 /****** VIEW *******/
 // initializing the google map
 init = function() {
-  // connectiong the map to index.html by Id
-  var mapDiv = document.getElementById('google-map');
+  // connecting the map to index.html by Id
+  map = document.getElementById('google-map');
 
   // initial position of map when loading on first item of list
   var centerLatLng = new google.maps.LatLng(initialLocations[0].lat, initialLocations[0].lng);
@@ -31,9 +31,8 @@ init = function() {
   };
 
   // creating the map
-  map = new google.maps.Map(mapDiv, mapOptions);
+  map = new google.maps.Map(map, mapOptions);
 
-  // did not work since marker is still empty --> bug fix: moved google maps script into header
   // setting the markers on the map
   for (var i = 0; i < initialLocations.length; i++) {
     initialLocations[i].marker.setMap(map); 
@@ -91,14 +90,18 @@ var ViewModel = function() {
       dataType: "jsonp",
       success: function (response) {
         var wikiArticles = response[1];
-
-        for (var i = 0 ; i < wikiArticles.length ; i++ ) {
-            var site = wikiArticles[i];
-            var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
-            $wikiElem.append("<li><a href='" + url + "'target='_blank'>" + site + "</a></li>" );
+        if (wikiArticles.length > 0) {
+          for (var i = 0 ; i < wikiArticles.length; i++ ) {
+              var site = wikiArticles[i];
+              var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
+              $wikiElem.append("<li><a href='" + url + "'target='_blank'>" + site + "</a></li>" );
+              }
             }
-        clearTimeout(wikiRequestTimeout);
-      },
+        else {
+          $wikiElem.append("<p>Sorry, we could not find any matching Wikipedia articles for your search</p>" );
+        }
+          clearTimeout(wikiRequestTimeout);
+        },
       error: function (e) {
         console.log('error');
           $wikiElem.text("Wikipedia articles could not be loaded.");
@@ -109,15 +112,21 @@ var ViewModel = function() {
     $.getJSON(requestNYT)
       .done ( function (data) {
         // $nytHeaderElem.text("New York Times articles about: " + cityValue);
-        articles = data.response.docs;
+        var articles = data.response.docs;
+        console.log(articles.length);
 
         //runs through each article and provides the requested data from each
-        for (var i = 0 ; i < articles.length ; i++ ) {
+        if (articles.length > 0) {
+          for (var i = 0 ; i < articles.length ; i++ ) {
             var headlineAndLink = "<a href='" + articles[i].web_url + "'target='_blank''>" + articles[i].headline.main;
             var snippet = "<p>" + articles[i].snippet + "</p>" ;
             $nytElem.append("<li class='article'>" + headlineAndLink  + "</a>" + snippet + "</li>" );
             };
-      })
+        }
+        else {
+          $nytElem.append("<li class='article'>Sorry, we could not find any NYTimes articles for this search time</li>" );
+        }
+        })
 
       .fail ( function (e) {
           $nytElem.text("New York Times article could not be loaded.");
@@ -174,8 +183,6 @@ var ViewModel = function() {
     })(newMarker));
   }
     
-
-  
   // declaring the user input as an observable
   self.query = ko.observable('');
 
