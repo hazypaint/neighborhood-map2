@@ -5,15 +5,15 @@ var InfoWindow;
 
 // setting location data for Basel
 var initialLocations = [
-{name : "Basel Minster", address: "Rittergasse 3, 4051 Basel", tags: ["church", "cathedral"], lat: 47.556458, lng: 7.592443, marker: null, requestW: null, requestN: null},
-{name : "Zoo Basel", address: "Binningerstrasse 40, 4054 Basel", tags: ["animals", "attraction", "family fun"], lat: 47.547405, lng: 7.578807, marker: null, requestW: null, requestN: null},
-{name : "Kunstmuseum Basel",  address: "St. Alban-Graben 16, 4051 Basel", tags: ["art", "museum"], lat: 47.554021, lng: 7.594268, marker: null, requestW: null, requestN: null},
-{name : "Basel SBB Railway Station", address: "Centralbahnstrasse 10, 4051 Basel", tags: ["getting here", "travel"], lat: 47.547571, lng: 7.589662, marker: null, requestW: null, requestN: null},
-{name : "EuroAirport Basel Mulhouse Freiburg", address: "68304 Saint-Louis, France", tags: ["getting here", "travel"], lat: 47.598181, lng: 7.525497, marker: null, requestW: null, requestN: null},
-{name : "Museum Tinguely", address: "Paul Sacher-Anlage 2, 4002 Basel", tags: ["art", "museum"], lat: 47.559101, lng: 7.612236, marker: null, requestW: null, requestN: null},
-{name : "Theatre Basel", address: "Elisabethenstrasse 16, 4051 Basel", tags: ["art", "theatre", "shows"], lat: 47.553306, lng: 7.590082, marker: null, requestW: null, requestN: null},
-{name : "Dollhouse Museum", address: "Steinenvorstadt 1, 4051 Basel", tags: ["art", "museum", "family fun"], lat: 47.553882, lng: 7.589206, marker: null, requestW: null, requestN: null},
-{name : "Basel Paper Mill", address: "St. Alban-Tal 37, 4052 Basel", tags: ["museum"], lat: 47.554668, lng: 7.603095, marker: null, requestW: null, requestN: null},
+{name : "Basel Minster", address: "Rittergasse 3, 4051 Basel", tags: ["church", "cathedral"], lat: 47.556458, lng: 7.592443, marker: null},
+{name : "Zoo Basel", address: "Binningerstrasse 40, 4054 Basel", tags: ["animals", "attraction", "family fun"], lat: 47.547405, lng: 7.578807, marker: null},
+{name : "Kunstmuseum Basel",  address: "St. Alban-Graben 16, 4051 Basel", tags: ["art", "museum"], lat: 47.554021, lng: 7.594268, marker: null, requestW: null},
+{name : "Basel SBB Railway Station", address: "Centralbahnstrasse 10, 4051 Basel", tags: ["getting here", "travel"], lat: 47.547571, lng: 7.589662, marker: null},
+{name : "EuroAirport Basel Mulhouse Freiburg", address: "68304 Saint-Louis, France", tags: ["getting here", "travel"], lat: 47.598181, lng: 7.525497, marker: null},
+{name : "Museum Tinguely", address: "Paul Sacher-Anlage 2, 4002 Basel", tags: ["art", "museum"], lat: 47.559101, lng: 7.612236, marker: null, requestW: null},
+{name : "Theatre Basel", address: "Elisabethenstrasse 16, 4051 Basel", tags: ["art", "theatre", "shows"], lat: 47.553306, lng: 7.590082, marker: null},
+{name : "Dollhouse Museum", address: "Steinenvorstadt 1, 4051 Basel", tags: ["art", "museum", "family fun"], lat: 47.553882, lng: 7.589206, marker: null},
+{name : "Basel Paper Mill", address: "St. Alban-Tal 37, 4052 Basel", tags: ["museum"], lat: 47.554668, lng: 7.603095, marker: null},
 ];
 
 // Load map on page load
@@ -43,7 +43,10 @@ var initialize = function() {
   }
 
   // creating the infoWindow 
-  InfoWindow = new google.maps.InfoWindow();
+  InfoWindow = new google.maps.InfoWindow({
+    // setting max width of infowindow to 250 px
+    maxWidth: 250
+  });
 };
 
 /****** VIEWMODEL *******/
@@ -54,10 +57,14 @@ var ViewModel = function() {
   var imageBlack = 'img/marker-icon-black.png';
   var $wikiElem = $('#wikipedia-links');
   var $nytElem = $('#nytimes-articles');
-  var wikiContent = "";
+  var cityValue = $('#city').val();
 
   // creating an observable array for the bullet points to display
   self.bulletPoints = ko.observableArray(initialLocations);
+  
+  self.bulletPoints().forEach(function(bulletPoint) {
+    bulletPoint.requestW = ko.observable();
+  });
 
   // creates a marker for each bulletPoint
   for (var i = 0; i < self.bulletPoints().length; i++) {
@@ -67,96 +74,68 @@ var ViewModel = function() {
       visible: false,   // hides markers in general
       map: map,
       draggable: false,
-      animation: null, 
+      animation: null,    // needs to be set in order to make animation on click work
       icon: imageBlack
      });
   };
-  
-
-  // load function for AJAX request -- executed on click event
-  var loadData = function (bulletPoint){
-    for (var i = 0; i < self.bulletPoints().length; i++) {
-      // wikipedia link created with wiki sandbox
-      self.bulletPoints()[i].requestW = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ self.bulletPoints()[i].name + '&format=json&callback=wikiCallback';
-      var requestWiki = self.bulletPoints()[i].requestW;
-
-      // NYTimes link for request
-      // self.bulletPoints()[i].requestN = "http://api.nytimes.com/svc/search/v2/articlesearch.json?q=" + self.bulletPoints()[i].name + "&page=0&max=5&api-key=bec2df7e772a904f941747a02d2bc3e7:4:72782796";
-      // var requestNYT = self.bulletPoints()[i].requestN;
-    }
-    
-    console.log('1: ' + requestWiki);
-  
-    // time out error info in case wikipedia can't be loaded
-    var wikiRequestTimeout = setTimeout(function(){
-        $wikiElem.text("Wikipedia articles could not be loaded.");
-    }, 8000);
-    console.log('2: right b4 AJAX');
-    // Wikipedia AJAX request
-    $.ajax({
-      type: "GET",
-      url: requestWiki,
-      dataType: "jsonp",
-      success: function (response) {
-        console.log('3: ');              //!!!
-        var wikiArticles = response[1];
-        if (wikiArticles.length > 0) {
-          for (var i = 0 ; i < wikiArticles.length; i++ ) {
-              var site = wikiArticles[i];
-              var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
-              $wikiElem.append("<li><a href='" + url + "'target='_blank'>" + site + "</a></li>");
-              wikiContent = "<li><a href='" + url + "'target='_blank'>" + site + "</a></li>";
-              console.log('3a: ' + wikiContent);
-              }
-            }
-        // if no articles are found, the following message is displayed
-        else {
-          $wikiElem.append("<p>Sorry, we could not find any matching Wikipedia articles for your search</p>" );
-          wikiContent = "<p>Sorry, no matching articles found</p>" ;
-        }
-          clearTimeout(wikiRequestTimeout);
-        },
-      // if the request can't be loaded, the following message is displayed
-      error: function (e) {
-          $wikiElem.text("Wikipedia articles could not be loaded.");
-          wikiContent = "<p>Articles could not be loaded.</p>" ;
-        }
-    });
-    console.log('4: skips til here')
-    // NYTimes AJAX request
-    // $.getJSON(requestNYT)
-    //   .done ( function (data) {
-    //     var articles = data.response.docs;
-
-    //     //runs through each article and provides the requested data (head line + snippet) from each
-    //     if (articles.length > 0) {
-    //       for (var i = 0 ; i < articles.length ; i++ ) {
-    //         var headlineAndLink = "<a href='" + articles[i].web_url + "'target='_blank''>" + articles[i].headline.main;
-    //         var snippet = "<p>" + articles[i].snippet + "</p>" ;
-    //         $nytElem.append("<li class='article'>" + headlineAndLink  + "</a>" + snippet + "</li>" );
-    //         };
-    //     }
-    //     // if no articles are found, the following message is displayed
-    //     else {
-    //       $nytElem.append("<li class='article'>Sorry, we could not find any NYTimes articles for this search time</li>" );
-    //     }
-    //     })
-    //   // if the request can't be loaded, the following message is displayed
-    //   .fail ( function (e) {
-    //       $nytElem.text("New York Times article could not be loaded.");
-    //   });
-    return false;
-  };
-// }
-loadData();
-console.log('5: outside of loadData');
 
   // setting the content for the infoWindow and event listener for markers and list items
   for (var i = 0; i < self.bulletPoints().length; i++) {
+
+    // creating marker variables for the event listener
+    var newMarker = self.bulletPoints()[i].marker;
+
+    // event listener for the infoWindow to open on click
+    google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
     
-    console.log('6: content creation for infowindow');
+      // creating the wikipedia request with sandbox
+      var newRequest = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ newMarker.title + '&format=json&callback=wikiCallback';
+      console.log(newRequest);
+
+      // time out error info in case wikipedia can't be loaded
+      var wikiRequestTimeout = setTimeout(function(){
+          $wikiElem.text("Wikipedia articles could not be loaded.");
+      }, 8000);
+
+      return function() {
+        $.ajax({
+          type: "GET",
+          url: newRequest,
+          dataType: "jsonp",
+          success: function (response) {
+            var wikiArticles = response[1];
+            if (wikiArticles.length > 0) {
+              for (var i = 0 ; i < wikiArticles.length; i++ ) {
+                var site = wikiArticles[i];
+                var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
+                $wikiElem.append('<li><a href="' + url + '"target="_blank">' + site + '</a></li>');
+                self.bulletPoints()[i].requestW('<li><a href="' + url + '"target="_blank">' + site + '</a></li>');
+                console.log('2 finally runs ajax with observable: ' + self.bulletPoints()[i].requestW());
+              }
+              InfoWindow.setContent(contentCopy);
+              console.log('3: info window content is set')
+            }
+            // if no articles are found, the following message is displayed
+            else {
+              $wikiElem.append("<p>Sorry, we could not find any matching Wikipedia articles for your search</p>" );
+              self.bulletPoints()[i].requestW("<p>Sorry, no matching articles found</p>");
+              console.log('sorry');
+            }
+              clearTimeout(wikiRequestTimeout);
+            },
+          // if the request can't be loaded, the following message is displayed
+          error: function (e) {
+              $wikiElem.text("Wikipedia articles could not be loaded.");
+              console.log('error');
+              self.bulletPoints()[i].requestW("<p>Articles could not be loaded.</p>") ;
+            }
+          });
+        return false;
+      };
+    })(newContent));
 
     // creates a content string for each location
+    console.log('1: content creation starts')
     var newContent = '<div id="content">'+
       '<div id="siteNotice">'+
       '</div>'+
@@ -164,19 +143,16 @@ console.log('5: outside of loadData');
       '<div id="bodyContent">'+
       '<p>The <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
       '<h5>Wikipedia Articles:</h5>' + 
-// needs fix: should update wikipedia link 
-      '<ul id="wikipedia-links">' + wikiContent[i] + '</ul>'
+      '<ul id="wiki">' + self.bulletPoints()[i].requestW() + '</ul>' + 
       '<h5>Foursquare rating:</h5>' + 
       '</div>'+
       '</div>';
 
-    // creating marker variables for the event listener
-    var newMarker = self.bulletPoints()[i].marker;
-    
+    console.log('4: content creation is finished');
+
     // event listener for the infoWindow to open on click
     google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
       return function() {
-        InfoWindow.setContent(contentCopy);
         InfoWindow.open(map, this);
       };
     })(newContent));
@@ -192,15 +168,15 @@ console.log('5: outside of loadData');
           contentCopy.setAnimation(google.maps.Animation.BOUNCE);
           setTimeout(function(){ contentCopy.setAnimation(null); }, 750);
           // clears wiki and NYT text before loading new content
-          $wikiElem.text("");
-          $nytElem.text("");
+          // $wikiElem.text("");
+          // $nytElem.text("");
           // loads wiki content related to clicked marker or list item
-          loadData(contentCopy);
+          // loadData(contentCopy);
         };
       }
     })(newMarker));
   }
-    
+
   // declaring the user input as an observable
   self.query = ko.observable('');
   
