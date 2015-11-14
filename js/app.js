@@ -44,7 +44,7 @@ var initialize = function() {
 
   // creating the infoWindow 
   InfoWindow = new google.maps.InfoWindow({
-    // setting max width of infowindow to 250 px
+    // setting max width of infowindow to 250px
     maxWidth: 250
   });
 };
@@ -85,6 +85,22 @@ var ViewModel = function() {
     // creating marker variables for the event listener
     var newMarker = self.bulletPoints()[i].marker;
 
+    // creates a content string for each location
+    console.log('1: content creation starts')
+    var newContent = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h3 id="firstHeading" class="firstHeading">' + self.bulletPoints()[i].name + '</h3>'+
+      '<div id="bodyContent">'+
+      '<p>The <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
+      '<h5>Wikipedia Articles:</h5>' + 
+      '<ul id="wiki">' + self.bulletPoints()[i].requestW() + '</ul>' + 
+      '<h5>Foursquare rating:</h5>' + 
+      '</div>'+
+      '</div>';
+
+    console.log('4: content creation is finished');
+
     // event listener for the infoWindow to open on click
     google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
     
@@ -110,7 +126,7 @@ var ViewModel = function() {
                 var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
                 $wikiElem.append('<li><a href="' + url + '"target="_blank">' + site + '</a></li>');
                 self.bulletPoints()[i].requestW('<li><a href="' + url + '"target="_blank">' + site + '</a></li>');
-                console.log('2 finally runs ajax with observable: ' + self.bulletPoints()[i].requestW());
+                console.log('2 finally runs ajax with corresponding observable: ' + self.bulletPoints()[i].requestW());
               }
               InfoWindow.setContent(contentCopy);
               console.log('3: info window content is set')
@@ -133,22 +149,6 @@ var ViewModel = function() {
         return false;
       };
     })(newContent));
-
-    // creates a content string for each location
-    console.log('1: content creation starts')
-    var newContent = '<div id="content">'+
-      '<div id="siteNotice">'+
-      '</div>'+
-      '<h3 id="firstHeading" class="firstHeading">' + self.bulletPoints()[i].name + '</h3>'+
-      '<div id="bodyContent">'+
-      '<p>The <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
-      '<h5>Wikipedia Articles:</h5>' + 
-      '<ul id="wiki">' + self.bulletPoints()[i].requestW() + '</ul>' + 
-      '<h5>Foursquare rating:</h5>' + 
-      '</div>'+
-      '</div>';
-
-    console.log('4: content creation is finished');
 
     // event listener for the infoWindow to open on click
     google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
