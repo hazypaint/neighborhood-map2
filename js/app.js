@@ -87,7 +87,7 @@ var ViewModel = function() {
     var newContent;
 
     // event listener for the infoWindow to open on click
-    google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
+    google.maps.event.addListener(newMarker, 'click', (function(markerRef, pointRef) {
     
       // creating the wikipedia request with sandbox
       var newRequest = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ newMarker.title + '&format=json&callback=wikiCallback';
@@ -104,6 +104,7 @@ var ViewModel = function() {
           url: newRequest,
           dataType: "jsonp",
           success: function (response) {
+            var newContent;
             // create string here
             // waiting for response of ajax request
             var wikiArticles = response[1];
@@ -114,32 +115,26 @@ var ViewModel = function() {
 
                 // here I am trying to fill the requestW observable with the ajax output
                 // however I don't get, what will happen when multiple results are returned
-                self.bulletPoints()[i].requestW('<li><a href="' + url + '"target="_blank">' + site + '</a></li>');
+                pointRef.requestW('<li><a href="' + url + '"target="_blank">' + site + '</a></li>');
               };
 
               // creates a content string for each location using the ajax request
-              // but it always returns last string
-              for (var i = 0; i < self.bulletPoints().length; i++) {
 
-                var newContent = '<div id="content">'+
+                newContent = '<div id="content">'+
                   '<div id="siteNotice">'+
                   '</div>'+
-                  '<h3 id="firstHeading" class="firstHeading">' + self.bulletPoints()[i].name + '</h3>'+
+                  '<h3 id="firstHeading" class="firstHeading">' + pointRef.name + '</h3>'+
                   '<div id="bodyContent">'+
-                  '<p>The <b>' + self.bulletPoints()[i].name + '</b> is located at <b>' + self.bulletPoints()[i].address + '</b></p>'+
+                  '<p>The <b>' + pointRef.name + '</b> is located at <b>' + pointRef.address + '</b></p>'+
                   '<h5>Wikipedia Articles:</h5>' + 
-                  '<ul id="wiki">' + self.bulletPoints()[0].requestW() + 
+                  '<ul id="wiki">' + pointRef.requestW() + 
                   '<h5>Foursquare rating:</h5>' + 
                   '</div>'+
                   '</div>';
               };
 
-              console.log(newContent);
-              console.log('4: content creation is finished');
-              InfoWindow.setContent(contentCopy);
-              console.log('3: info window content is set')
-            }
-
+              InfoWindow.setContent(newContent);
+              
             // if no articles are found, the following message is displayed
             // else {
             //   $wikiElem.append("<p>Sorry, we could not find any matching Wikipedia articles for your search</p>" );
@@ -148,9 +143,10 @@ var ViewModel = function() {
             // }
             // calling clearTimeout
               clearTimeout(wikiRequestTimeout);
+              InfoWindow.open(map, markerRef);
 
               // opening the infoWindow
-              InfoWindow.open(map, this);
+              
             },
           // if the request can't be loaded, the following message is displayed
           error: function (e) {
@@ -161,7 +157,7 @@ var ViewModel = function() {
           });
         return false;
       };
-    })(newContent));
+    })(newMarker, self.bulletPoints()[i]));
 
 
     // event listener for the infoWindow to open on click
