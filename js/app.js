@@ -55,14 +55,12 @@ var ViewModel = function() {
   // console.log('ViewModel');
   var self = this;  // = ViewModel{}
   var imageBlack = 'img/marker-icon-black.png';
-  var $wikiElem = $('#wikipedia-links');
-  var $nytElem = $('#nytimes-articles');
 
   // creating an observable array for the bullet points to display
   self.bulletPoints = ko.observableArray(initialLocations);
   
   self.bulletPoints().forEach(function(bulletPoint) {
-    bulletPoint.requestW = ko.observable();
+    bulletPoint.requestW = ko.observableArray();
   });
 
   // creates a marker for each bulletPoint
@@ -83,19 +81,16 @@ var ViewModel = function() {
 
     // creating marker variables for the event listener
     var newMarker = self.bulletPoints()[i].marker;
-    // var newContent = '<h1>%title%</h1>'
-    var newContent;
 
     // event listener for the infoWindow to open on click
     google.maps.event.addListener(newMarker, 'click', (function(markerRef, pointRef) {
     
       // creating the wikipedia request with sandbox
       var newRequest = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ newMarker.title + '&format=json&callback=wikiCallback';
-      // console.log(newRequest);
 
       // time out error info in case wikipedia can't be loaded
       var wikiRequestTimeout = setTimeout(function(){
-          $wikiElem.text("Wikipedia articles could not be loaded.");
+        window.alert("Timeout error");
       }, 8000);
 
       return function() {
@@ -104,84 +99,66 @@ var ViewModel = function() {
           url: newRequest,
           dataType: "jsonp",
           success: function (response) {
+            // The creation of the content string starts here
+            // But first we wait for response of the ajax request
             var newContent;
-            // create string here
-            // waiting for response of ajax request
             var wikiArticles = response[1];
             if (wikiArticles.length > 0) {
               for (var i = 0 ; i < wikiArticles.length; i++ ) {
                 var site = wikiArticles[i];
                 var url = "http://en.wikipedia.org/wiki/" + wikiArticles[i];
 
-                // here I am trying to fill the requestW observable with the ajax output
-                // however I don't get, what will happen when multiple results are returned
-                pointRef.requestW('<li><a href="' + url + '"target="_blank">' + site + '</a></li>');
+                // filling the requestW observable with the ajax output
+                // bug: multiple results are not returned
+                pointRef.requestW.push('<li><a href="' + url + '"target="_blank">' + site + '</li></a>');
               };
 
-              // creates a content string for each location using the ajax request
-
+              // Here we create the actual content string for each location using the results of the ajax request
                 newContent = '<div id="content">'+
                   '<div id="siteNotice">'+
                   '</div>'+
                   '<h3 id="firstHeading" class="firstHeading">' + pointRef.name + '</h3>'+
                   '<div id="bodyContent">'+
                   '<p>The <b>' + pointRef.name + '</b> is located at <b>' + pointRef.address + '</b></p>'+
-                  '<h5>Wikipedia Articles:</h5>' + 
-                  '<ul id="wiki">' + pointRef.requestW() + 
-                  '<h5>Foursquare rating:</h5>' + 
+                  '<h5>Related Wikipedia articles:</h5>' + 
+                  '<ul>' + pointRef.requestW() + '</ul>' +
                   '</div>'+
                   '</div>';
-              };
-
-              InfoWindow.setContent(newContent);
-              
-            // if no articles are found, the following message is displayed
-            // else {
-            //   $wikiElem.append("<p>Sorry, we could not find any matching Wikipedia articles for your search</p>" );
-            //   self.bulletPoints()[i].requestW("<p>Sorry, no matching articles found</p>");
-            //   console.log('sorry');
-            // }
-            // calling clearTimeout
-              clearTimeout(wikiRequestTimeout);
-              InfoWindow.open(map, markerRef);
-
-              // opening the infoWindow
-              
-            },
-          // if the request can't be loaded, the following message is displayed
-          error: function (e) {
-              $wikiElem.text("Wikipedia articles could not be loaded.");
-              console.log('error');
-              self.bulletPoints()[i].requestW("<p>Articles could not be loaded.</p>") ;
             }
-          });
+            else {
+              // if no articles are found, the following message is displayed
+              newContent = '<p>Sorry, no matching articles found</p>';
+            }
+
+            // setting the content for the InfoWindow
+            InfoWindow.setContent(newContent);
+
+            // calling clearTimeout if content can't be set
+            clearTimeout(wikiRequestTimeout);
+
+            // opening the infoWindow
+            InfoWindow.open(map, markerRef);              
+          },
+
+          // if the request can't be loaded, the following error message is displayed
+          error: function (e) {
+            newContent = '<p>Articles could not be loaded.</p>';
+          }
+        });
         return false;
       };
     })(newMarker, self.bulletPoints()[i]));
 
-
-    // event listener for the infoWindow to open on click
-    // google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
-    //   return function() {
-    //     InfoWindow.open(map, this);
-    //   };
-    // })(newContent));
-
     // other Google Maps events
     google.maps.event.addListener(newMarker, 'click', (function(contentCopy) {
       return function() {
+        // makes marker bounce once upon click
         if (contentCopy.getAnimation() !== null) {
           contentCopy.setAnimation(null);
         } 
         else {
-          // makes marker bounce once upon click
           contentCopy.setAnimation(google.maps.Animation.BOUNCE);
           setTimeout(function(){ contentCopy.setAnimation(null); }, 750);
-          // clears wiki and NYT text before loading new content
-          // $wikiElem.text("");
-          // $nytElem.text("");
-          // loads wiki content related to clicked marker or list item
-          // loadData(contentCopy);
         };
       }
     })(newMarker));
