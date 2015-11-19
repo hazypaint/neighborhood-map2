@@ -49,8 +49,12 @@
         </div>
 
     <script>function initialize() {}</script>
+    <script> function googleError() {
+          alert("Google map fail to load!");
+        }
+    </script>
     <script 
-    src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDHX5DB-7dpBp4wQxZt_tLPUyy4WzD0mec&signed_in=true&callback=initialize"></script>
+    src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDHX5DB-7dpBp4wQxZt_tLPUyy4WzD0mec&signed_in=true&callback=initialize" onerror="googleError()"></script>
         <script async src="js/lib/jquery.min.js"></script>
         <script async defer src="js/lib/knockout-3.3.0.js"></script>
         <script async src="js/app.js"></script>
