@@ -8,7 +8,6 @@
     <link href="http://fonts.googleapis.com/css?family=Lato:200,400" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
-
 </head>
 <body>
      <div class="container">
@@ -48,24 +47,10 @@
                 <p><p/>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-5 text-background">
-                <h4>Wikipedia Information</h4>
-                <ul id="wikipedia-links">Click a marker or a place from the list to see more information</ul>
-            </div>
-            <div class="col-md-2">
-                <p></p>
-            </div>
-            <div class="col-md-5 text-background" data-bind="with: bulletPoints">
-                <h4>NYT articles on your chosen sight</h4>
-                <ul id="nytimes-articles" class="article-list">Click a marker or a place from the list to see articles from the New York Times</ul>
-                
-            </div>
-        </div>
+
     <script>function initialize() {}</script>
     <script 
     src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDHX5DB-7dpBp4wQxZt_tLPUyy4WzD0mec&signed_in=true&callback=initialize"></script>
-    <!-- &callback=initialize was at end of script; dismissing it made my code work -->
         <script async src="js/lib/jquery.min.js"></script>
         <script async defer src="js/lib/knockout-3.3.0.js"></script>
         <script async src="js/app.js"></script>
