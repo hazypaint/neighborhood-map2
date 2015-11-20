@@ -90,7 +90,7 @@ var ViewModel = function() {
 
       // time out error info in case wikipedia can't be loaded
       var wikiRequestTimeout = setTimeout(function(){
-        window.alert("Timeout error");
+        var newRequest = 'Wikipedia resource not found.';
       }, 8000);
 
       return function() {
@@ -110,7 +110,7 @@ var ViewModel = function() {
 
                 // filling the requestW observable with the ajax output
                 // bug: multiple results are not returned
-                pointRef.requestW.push('<li><a href="' + url + '"target="_blank">' + site + '</li></a>');
+                pointRef.requestW.push('<li class="li-wiki"><a href="' + url + '"target="_blank">' + site + '</li></a>');
               };
 
               // Here we create the actual content string for each location using the results of the ajax request
@@ -174,7 +174,6 @@ var ViewModel = function() {
       // if the input matches one of the initialLocations, the matching list items and markers are returned
       if (bulletPoint.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0) {
         bulletPoint.marker.setVisible(true);
-        // InfoWindow.close();
         return bulletPoint.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
       }
       else {

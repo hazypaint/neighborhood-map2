@@ -20,6 +20,11 @@ img {
 input {
     width: 300px;
 }
+
+.li-wiki {
+  margin: -7px 0;
+}
+
 .text-thin {
     font-weight: 100;
 }

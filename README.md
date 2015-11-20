@@ -1,4 +1,3 @@
-ud989-cat-clicker-ko-starter
-============================
+This is a neighborhood map app for the Basel area in Switzerland.
 
-ud989-cat-clicker-ko-starter
+To run the app locally open the file index.html in your browser.
