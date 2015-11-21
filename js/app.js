@@ -16,13 +16,12 @@ var initialLocations = [
 {name : "Basel Paper Mill", address: "St. Alban-Tal 37, 4052 Basel", tags: ["museum"], lat: 47.554668, lng: 7.603095, marker: null},
 ];
 
-// Load map on page load
-google.maps.event.addDomListener(window, 'load', function() {
-  initialize();
-});
-
 // initializing the map
-var initialize = function() {
+function initialize() {
+  /* Bindings are applied here so that the google map has been 
+   *loaded when the ViewModel is called */
+   
+  ko.applyBindings(new ViewModel());
   // connecting the map to index.html by Id
   map = document.getElementById('google-map');
 
@@ -88,11 +87,6 @@ var ViewModel = function() {
       // creating the wikipedia request with sandbox
       var newRequest = 'http://en.wikipedia.org/w/api.php?action=opensearch&search='+ newMarker.title + '&format=json&callback=wikiCallback';
 
-      // time out error info in case wikipedia can't be loaded
-      var wikiRequestTimeout = setTimeout(function(){
-        var newRequest = 'Wikipedia resource not found.';
-      }, 8000);
-
       return function() {
         $.ajax({
           type: "GET",
@@ -132,9 +126,6 @@ var ViewModel = function() {
 
             // setting the content for the InfoWindow
             InfoWindow.setContent(newContent);
-
-            // calling clearTimeout if content can't be set
-            clearTimeout(wikiRequestTimeout);
 
             // opening the infoWindow
             InfoWindow.open(map, markerRef);              
@@ -188,6 +179,3 @@ var ViewModel = function() {
     google.maps.event.trigger(listMarker, "click");
   };  
 };
-
-// Apply bindings
-ko.applyBindings(new ViewModel());
