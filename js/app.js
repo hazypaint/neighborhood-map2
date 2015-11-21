@@ -16,11 +16,12 @@ var initialLocations = [
 {name : "Basel Paper Mill", address: "St. Alban-Tal 37, 4052 Basel", tags: ["museum"], lat: 47.554668, lng: 7.603095, marker: null},
 ];
 
+
 // initializing the map
 function initialize() {
   /* Bindings are applied here so that the google map has been 
    *loaded when the ViewModel is called */
-   
+
   ko.applyBindings(new ViewModel());
   // connecting the map to index.html by Id
   map = document.getElementById('google-map');
